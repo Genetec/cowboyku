@@ -4,5 +4,5 @@
   0},
  {<<"ranch">>,
   {git,"https://github.com/extend/ranch.git",
-       {ref,"5df1f222f94e08abdcab7084f5e13027143cc222"}},
+       {ref,"ebf216e91ef2ae54d378234062db949d95f01c0d"}},
   0}].
