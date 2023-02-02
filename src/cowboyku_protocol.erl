@@ -51,11 +51,11 @@
 %% API.
 -export([
          become/4,
-         start_link/4
+         start_link/3
         ]).
 
 %% Internal.
--export([init/4]).
+-export([init/3]).
 -export([parse_request/3]).
 -export([resume/6]).
 
@@ -95,9 +95,9 @@
 %% API.
 
 %% @doc Start an HTTP protocol process.
--spec start_link(ranch:ref(), inet:socket(), module(), opts()) -> {ok, pid()}.
-start_link(Ref, Socket, Transport, Opts) ->
-	Pid = spawn_link(?MODULE, init, [Ref, Socket, Transport, Opts]),
+-spec start_link(ranch:ref(), module(), opts()) -> {ok, pid()}.
+start_link(Ref, Transport, Opts) ->
+	Pid = spawn_link(?MODULE, init, [Ref, Transport, Opts]),
 	{ok, Pid}.
 
 %% Internal.
@@ -111,9 +111,9 @@ get_value(Key, Opts, Default) ->
 	end.
 
 %% @private
--spec init(ranch:ref(), inet:socket(), module(), opts()) -> ok.
-init(Ref, Socket, Transport, Opts) ->
-    ok = ranch:accept_ack(Ref),
+-spec init(ranch:ref(), module(), opts()) -> ok.
+init(Ref, Transport, Opts) ->
+	{ok, Socket} = ranch:handshake(Ref),
     become(Ref, Socket, Transport, Opts).
 
 -spec become(

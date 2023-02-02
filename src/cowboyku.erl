@@ -42,28 +42,26 @@
 	cowboyku_protocol:opts()) -> {ok, pid()} | {error, any()}.
 start_http(Ref, NbAcceptors, TransOpts, ProtoOpts)
 		when is_integer(NbAcceptors), NbAcceptors > 0 ->
-	ranch:start_listener(Ref, NbAcceptors,
-		ranch_tcp, TransOpts, cowboyku_protocol, ProtoOpts).
+	ranch:start_listener(Ref,
+		ranch_tcp, TransOpts#{num_acceptors => NbAcceptors}, cowboyku_protocol, ProtoOpts).
 
 %% @doc Start an HTTPS listener.
 -spec start_https(ranch:ref(), non_neg_integer(), ranch_ssl:opts(),
 	cowboyku_protocol:opts()) -> {ok, pid()} | {error, any()}.
 start_https(Ref, NbAcceptors, TransOpts, ProtoOpts)
 		when is_integer(NbAcceptors), NbAcceptors > 0 ->
-	ranch:start_listener(Ref, NbAcceptors,
-		ranch_ssl, TransOpts, cowboyku_protocol, ProtoOpts).
+	ranch:start_listener(Ref,
+		ranch_ssl, TransOpts#{num_acceptors => NbAcceptors}, cowboyku_protocol, ProtoOpts).
 
 %% @doc Start a SPDY listener.
 -spec start_spdy(ranch:ref(), non_neg_integer(), ranch_ssl:opts(),
 	cowboyku_spdy:opts()) -> {ok, pid()} | {error, any()}.
 start_spdy(Ref, NbAcceptors, TransOpts, ProtoOpts)
 		when is_integer(NbAcceptors), NbAcceptors > 0 ->
-	TransOpts2 = [
-		{connection_type, supervisor},
-		{next_protocols_advertised,
-			[<<"spdy/3">>, <<"http/1.1">>, <<"http/1.0">>]}
-	|TransOpts],
-	ranch:start_listener(Ref, NbAcceptors,
+	TransOpts2 = maps:merge(TransOpts, #{num_acceptos => NbAcceptors,
+		 connection_type => supervisor,
+		 next_protocols_advertised => [<<"spdy/3">>, <<"http/1.1">>, <<"http/1.0">>]}),
+	ranch:start_listener(Ref,
 		ranch_ssl, TransOpts2, cowboyku_spdy, ProtoOpts).
 
 %% @doc Stop a listener.
